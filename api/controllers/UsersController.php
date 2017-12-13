@@ -5,6 +5,7 @@ require "$root/embryon/api/functions/jsonFunctions.php";
 require "$root/embryon/api/functions/formatFunctions.php";
 
 class UsersController {
+  // /user/signup POST
   public function signup($email, $password, $confirmation) {
     if (strcmp($password, $confirmation) != 0) {
       return createUserResponse(0, "Le mot de passe et la confirmation ne correspondent pas.", null);
@@ -22,6 +23,7 @@ class UsersController {
     return createUserResponse(1, "Utilisateur créé.", $user->getId());
   }
 
+  // /user/login POST
   public function login($email, $password) {
     $db = dbConnect();
     $query = "SELECT COUNT(*) FROM users WHERE email = '$email' AND password = '$password'";
@@ -34,6 +36,7 @@ class UsersController {
     return createUserResponse(1, "Utilisateur connecté.", $user->getId());
   }
 
+  // /user/edit POST
   public function edit($data, $id) {
     echo $data["pic_url"] . "<br />";
     if (strcmp($data["password"], $data["confirmation"]) != 0) {
@@ -48,6 +51,31 @@ class UsersController {
     $data["id"] = $id;
     $user = new User($data, "edit");
     return createUserResponse(1, "Modifications enregistrées.", $id);
+  }
+
+  // /user/getUser?id=x GET
+  public function getUser($id) {
+    $db = dbConnect();
+    $query = "SELECT COUNT(*) FROM users WHERE id = $id";
+    $res = dbQuery($db, $query);
+    if ($res->fetchColumn(0) == 0) {
+      return createGetUserResponse(0, "User not found.", null);
+    }
+    $data["id"] = $id;
+    $user = new User($data, "get");
+    return createGetUserResponse(1, "Success.", json_decode($user->serialize()));
+  }
+
+  // /user/getAll GET
+  public function getAll() {
+    $db = dbConnect();
+    $query = "SELECT * FROM users";
+    $res = dbQuery($db, $query);
+    $users = [];
+    foreach ($res as $user) {
+      $users[] = $user;
+    }
+    return createGetAllResponse(1, "Success.", $users);
   }
 }
  ?>

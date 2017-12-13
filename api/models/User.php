@@ -24,7 +24,7 @@ class User {
       $this->create($data["email"], $data["password"]);
     }
     else if ($mode === "get") {
-      $this->get($data["email"]);
+      $this->get($data);
     }
     else if ($mode === "edit") {
       $this->edit($data);
@@ -51,9 +51,11 @@ class User {
     $this->active = 1;
   }
 
-  public function get($email) {
+  public function get($data) {
     $db = dbConnect();
-    $query = "SELECT * FROM users WHERE email = '$email'";
+    $condition = isset($data["email"]) ? "email = '$data[email]'" : "id = $data[id]";
+    $query = "SELECT * FROM users WHERE " . $condition;
+    echo $query;
     $res = dbQuery($db, $query)->fetchAll()[0];
     $this->id = $res["id"];
     $this->email = $res["email"];
@@ -91,6 +93,13 @@ class User {
   public function setId($db) {
     $query = "SELECT id FROM users WHERE email = '$this->email'";
     $this->id = dbQuery($db, $query)->fetchAll()[0]["id"];
+  }
+
+  public function serialize() {
+    foreach ($this as $value) {
+      $res[] = $value;
+    }
+    return json_encode($res);
   }
 }
  ?>
