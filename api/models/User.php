@@ -1,36 +1,37 @@
 <?php
-
 $root = $_SERVER['DOCUMENT_ROOT'];
 require "$root/embryon/api/functions/dbFunctions.php";
 
 class User {
-  private $_id;
-  private $_email;
-  private $_password;
-  private $_firstname;
-  private $_lastname;
-  private $_pic_url;
-  private $_phone;
-  private $_building;
-  private $_floor;
-  private $_location;
-  private $_date_creation;
-  private $_date_modification;
-  private $_admin;
-  private $_active;
+  private $id;
+  private $email;
+  private $password;
+  private $firstname;
+  private $lastname;
+  private $pic_url;
+  private $phone;
+  private $building;
+  private $floor;
+  private $location;
+  private $date_creation;
+  private $date_modification;
+  private $admin;
+  private $active;
 
   public function __construct($email, $password, $creation) {
-    if ($creation)
+    if ($creation) {
       $this->create($email, $password);
-    else
+    }
+    else {
       $this->get($email);
+    }
   }
 
   public function create($email, $password) {
     $db = dbConnect();
     $query = "INSERT INTO users (email, password) VALUES ('$email', '$password')";
     $res = dbQuery($db, $query);
-    $this->id = $res["id"];
+    $this->setId($db);
     $this->email = $email;
     $this->password = $password;
     $this->firstname = null;
@@ -70,11 +71,9 @@ class User {
     return $this->id;
   }
 
-  public function jsonSerialize() {
-    return json_encode($this);
+  public function setId($db) {
+    $query = "SELECT id FROM users WHERE email = '$this->email'";
+    $this->id = dbQuery($db, $query)->fetchAll()[0]["id"];
   }
 }
-
-
-
  ?>

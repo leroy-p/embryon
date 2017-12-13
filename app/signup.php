@@ -1,9 +1,11 @@
 <?php
   require "../api/controllers/UsersController.php";
 
+  session_start();
   $uc = new UsersController();
-  $json = $uc->signup($_POST["email"], $_POST["password"]);
-  echo $json;
+  $json = $uc->signup($_POST["email"], $_POST["password"], $_POST["confirmation"]);
+  $response = json_decode($json);
+  $_SESSION["message"] = $response->message;
   header("Location: index.php");
   die();
  ?>
