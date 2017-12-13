@@ -28,7 +28,7 @@ if (!isset($_SESSION["user_id"])) {
         <input type="file" name="pic_url" id="pic_url" placeholder="" />Image<br />
         <input type="text" name="phone" id="phone" placeholder="" />Téléphone<br />
         <input type="text" name="building" id="building" placeholder="" />Batiment<br />
-        <input type="text" name="floor" id="floor" placeholder="" />Etage<br />
+        <input type="number" name="floor" id="floor" placeholder="" />Etage<br />
         <input type="text" name="location" id="location" placeholder="" />Position<br />
         <input type="submit" value="Enregistrer les modifications" />
         <a href="index.php"><input type="button" value="Annuler" /></a>

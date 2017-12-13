@@ -3,17 +3,6 @@ $root = $_SERVER['DOCUMENT_ROOT'];
 require "$root/embryon/api/functions/dbFunctions.php";
 require "$root/embryon/api/functions/queryFunctions.php";
 
-$usersColumns = [
-  "password",
-  "firstname",
-  "lastname",
-  "pic_url",
-  "phone",
-  "building",
-  "floor",
-  "location"
-];
-
 class User {
   private $id;
   private $email;
@@ -38,7 +27,7 @@ class User {
       $this->get($data["email"]);
     }
     else if ($mode === "edit") {
-      $this->edit($data["data"], $data["id"]);
+      $this->edit($data);
     }
   }
 
@@ -82,9 +71,9 @@ class User {
     $this->active = $res["active"];
   }
 
-  public function edit($data, $id) {
+  public function edit($data) {
     $db = dbConnect();
-    $query = createUsersQueryFromData($data, $id, $usersColumns);
+    $query = createUsersQueryFromData($data, $data["id"]);
     $res = dbQuery($db, $query)->fetchAll()[0];
     if ($data["password"]) $this->password = $data["password"];
     if ($data["firstname"]) $this->password = $data["firstname"];

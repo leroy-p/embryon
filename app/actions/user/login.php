@@ -4,7 +4,7 @@ require "$root/embryon/api/controllers/UsersController.php";
 
 session_start();
 $uc = new UsersController();
-$json = $uc->login($_POST["email"], $_POST["password"]);
+$json = $uc->login($_POST["email"], md5($_POST["password"]));
 // echo $json;
 $response = json_decode($json);
 $_SESSION["message"] = $response->message;

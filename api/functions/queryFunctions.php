@@ -1,16 +1,23 @@
 <?php
-function createUsersQueryFromData($data, $id, $usersColumns) {
+function createUsersQueryFromData($data, $id) {
   $query = "UPDATE users SET ";
-  $count = 0;
+  $date = date("Y-m-d H:i:s");
+  $usersColumns = [
+    "password",
+    "firstname",
+    "lastname",
+    "pic_url",
+    "phone",
+    "building",
+    "floor",
+    "location"
+  ];
   foreach ($usersColumns as $value) {
-    if ($data[$value]) {
-      if ($count > 0) {
-        $query .= ", ";
-      }
-      $query .= "$value = '$data[$value]'";
-      ++$count;
+    if (strlen($data[$value])) {
+      $query .= "$value = '$data[$value]', ";
     }
   }
-  $query .= " WHERE id = $id";
+  $query .= "date_modification = '$date' WHERE id = $id";
+  return $query;
 }
  ?>
