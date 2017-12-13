@@ -1,6 +1,18 @@
 <?php
 $root = $_SERVER['DOCUMENT_ROOT'];
 require "$root/embryon/api/functions/dbFunctions.php";
+require "$root/embryon/api/functions/queryFunctions.php";
+
+$usersColumns = [
+  "password",
+  "firstname",
+  "lastname",
+  "pic_url",
+  "phone",
+  "building",
+  "floor",
+  "location"
+];
 
 class User {
   private $id;
@@ -18,12 +30,15 @@ class User {
   private $admin;
   private $active;
 
-  public function __construct($email, $password, $creation) {
-    if ($creation) {
-      $this->create($email, $password);
+  public function __construct($data, $mode) {
+    if ($mode === "create") {
+      $this->create($data["email"], $data["password"]);
     }
-    else {
-      $this->get($email);
+    else if ($mode === "get") {
+      $this->get($data["email"]);
+    }
+    else if ($mode === "edit") {
+      $this->edit($data["data"], $data["id"]);
     }
   }
 
@@ -65,6 +80,19 @@ class User {
     $this->date_modification = $res["date_modification"];
     $this->admin = $res["admin"];
     $this->active = $res["active"];
+  }
+
+  public function edit($data, $id) {
+    $db = dbConnect();
+    $query = createUsersQueryFromData($data, $id, $usersColumns);
+    $res = dbQuery($db, $query)->fetchAll()[0];
+    if ($data["password"]) $this->password = $data["password"];
+    if ($data["firstname"]) $this->password = $data["firstname"];
+    if ($data["lastname"]) $this->password = $data["lastname"];
+    if ($data["pic_url"]) $this->password = $data["pic_url"];
+    if ($data["phone"]) $this->password = $data["phone"];
+    if ($data["building"]) $this->password = $data["building"];
+    if ($data["location"]) $this->password = $data["location"];
   }
 
   public function getId() {

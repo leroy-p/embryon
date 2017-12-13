@@ -16,7 +16,9 @@ class UsersController {
       return createUserReponse(0, "Email déjà utilisé.", null);
     }
     else {
-      $user = new User($email, $password, true);
+      $data["email"] = $email;
+      $data["password"] = $password;
+      $user = new User($data, "create");
       return createUserReponse(1, "Utilisateur créé.", $user->getId());
     }
   }
@@ -29,9 +31,14 @@ class UsersController {
       return createUserReponse(0, "Email ou mot de passe incorrect.", null);
     }
     else {
-      $user = new User($email, $password, false);
+      $data["email"] = $email;
+      $user = new User($data, "get");
       return createUserReponse(1, "Utilisateur connecté.", $user->getId());
     }
+  }
+
+  public function edit($data, $id) {
+    print_r[$data];
   }
 }
  ?>
