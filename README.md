@@ -4,19 +4,19 @@
 
 ### user
 
-http://localhost/embryon/api/actions/user/login
-POST
-request :
-{
-  "email": required,
-  "password": required
-}
-response :
-{
-  "status",
-  "message",
-  "id"
-}
+    http://localhost/embryon/api/actions/user/login
+    POST
+    request :
+    {
+      "email": required,
+      "password": required
+    }
+    response :
+    {
+      "status",
+      "message",
+      "id"
+    }
 
 http://localhost/embryon/api/actions/user/add
 POST
