@@ -20,4 +20,15 @@ function dbQuery($db, $query) {
   }
   return $res;
 }
+
+function getLastInsertId($db) {
+  try {
+    $res = $db->lastInsertId();
+  }
+  catch (PDOException $e) {
+    print "Error: " . $e->getMessage() . "<br/>";
+    die();
+  }
+  return $res;
+}
 ?>
