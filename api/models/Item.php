@@ -1,5 +1,5 @@
 <?php
-  $root = $_SERVER['DOCUMENT_ROOT'];
+  $root = $_SERVER["DOCUMENT_ROOT"];
   require_once "$root/embryon/api/functions/dbFunctions.php";
   require_once "$root/embryon/api/functions/queryFunctions.php";
   require_once "$root/embryon/api/functions/logFunctions.php";

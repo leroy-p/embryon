@@ -1,9 +1,10 @@
 <?php
-$root = $_SERVER['DOCUMENT_ROOT'];
+$root = $_SERVER["DOCUMENT_ROOT"];
 require_once "$root/embryon/api/controllers/UsersController.php";
 
-$data = file_get_contents('php://input');
+$json = file_get_contents('php://input');
+$data = json_decode($json, true);
 $uc = new UsersController();
-$json = $uc->edit(json_decode($data, true));
+$json = $uc->edit($data);
 echo $json;
 ?>

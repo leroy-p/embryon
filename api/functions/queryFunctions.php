@@ -30,7 +30,8 @@ function createAddItemQueryFromData($data) {
     "name",
     "description",
     "pic_url",
-    "available"
+    "available",
+    "status"
   ];
   foreach ($itemsColumns as $value) {
     if (isset($data[$value])) {
@@ -40,7 +41,16 @@ function createAddItemQueryFromData($data) {
   $query .= "date_creation, date_modification) VALUES (";
   foreach ($itemsColumns as $value) {
     if (isset($data[$value])) {
-      $query .= "'$data[$value]', ";
+      if (!strcmp($value, "available")) {
+        $available = $data[$value] ? 1 : 0;
+        $query .= "$available, ";
+      }
+      else if (!strcmp($value, "status")) {
+        $query .= "$data[$value], ";
+      }
+      else {
+        $query .= "'$data[$value]', ";
+      }
     }
   }
   $query .= "'$date', '$date')";
@@ -55,7 +65,8 @@ function createEditItemQueryFromData($data, $id) {
     "name",
     "description",
     "pic_url",
-    "available"
+    "available",
+    "status"
   ];
   foreach ($itemsColumns as $value) {
     if (isset($data[$value])) {
