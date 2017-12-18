@@ -1,10 +1,42 @@
 <?php
 $root = $_SERVER['DOCUMENT_ROOT'];
-require "$root/embryon/api/models/User.php";
-require "$root/embryon/api/functions/jsonFunctions.php";
-require "$root/embryon/api/functions/formatFunctions.php";
+require_once "$root/embryon/api/models/User.php";
+require_once "$root/embryon/api/functions/jsonFunctions.php";
+require_once "$root/embryon/api/functions/formatFunctions.php";
 
 class UsersController {
+  /*
+    http://localhost/embryon/api/actions/user/login
+    POST
+    request :
+    {
+      "email": required,
+      "password": required
+    }
+    response :
+    {
+      "status",
+      "message",
+      "id"
+    }
+  */
+  public function login($req) {
+    $requiredColumns = ["email", "password"];
+    foreach ($requiredColumns as $value) {
+      if (!isset($req[$value])) {
+        return createResponse(0, "Error: $value required.", 0);
+      }
+    }
+    $db = dbConnect();
+    $crypted = md5($req["password"]);
+    $query = "SELECT id FROM users WHERE email = '$req[email]' AND password = '$crypted'";
+    $res = dbQuery($db, $query)->fetchColumn(0);
+    if (!$res) {
+      return createResponse(0, "Error: incorrect email or password.", 0);
+    }
+    return createResponse(1, "Success: user logged in.", $res);
+  }
+
   /*
     http://localhost/embryon/api/actions/user/add
     POST
@@ -40,40 +72,9 @@ class UsersController {
     $req["password"] = md5($req["password"]);
     $user = new User();
     $user->add($req["email"], $req["password"]);
-    $id = getLastInsertId($db);
+    $query = "SELECT id FROM users WHERE email = '$req[email]'";
+    $id = dbQuery($db, $query)->fetchColumn(0);
     return createResponse(1, "Success: user created.", $id);
-  }
-
-  /*
-    http://localhost/embryon/api/actions/user/login
-    POST
-    request :
-    {
-      "email": required,
-      "password": required
-    }
-    response :
-    {
-      "status",
-      "message",
-      "id"
-    }
-  */
-  public function login($req) {
-    $requiredColumns = ["email", "password"];
-    foreach ($requiredColumns as $value) {
-      if (!isset($req[$value])) {
-        return createResponse(0, "Error: $value required.", 0);
-      }
-    }
-    $db = dbConnect();
-    $crypted = md5($req["password"]);
-    $query = "SELECT id FROM users WHERE email = '$req[email]' AND password = '$crypted'";
-    $res = dbQuery($db, $query)->fetchColumn(0);
-    if (!$res) {
-      return createResponse(0, "Error: incorrect email or password.", 0);
-    }
-    return createResponse(1, "Success: user logged in.", $res);
   }
 
   /*
@@ -234,8 +235,8 @@ class UsersController {
     $query = "SELECT * FROM users";
     $res = dbQuery($db, $query);
     $users = [];
-    foreach ($res as $user) {
-      $users[] = $user;
+    while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+      $users[] = $row;
     }
     return createGetAllUsersResponse(1, "Success.", $users);
   }

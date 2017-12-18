@@ -1,8 +1,8 @@
 <?php
 $root = $_SERVER['DOCUMENT_ROOT'];
-require "$root/embryon/api/models/Item.php";
-require "$root/embryon/api/functions/jsonFunctions.php";
-require "$root/embryon/api/functions/formatFunctions.php";
+require_once "$root/embryon/api/models/Item.php";
+require_once "$root/embryon/api/functions/jsonFunctions.php";
+require_once "$root/embryon/api/functions/formatFunctions.php";
 
 class ItemsController {
   /*
@@ -34,9 +34,11 @@ class ItemsController {
     if (!$res) {
       return createResponse(0, "Error: user not found.", 0);
     }
+    $req["token"] = date("HisYmd") . $req["user_id"];
     $item = new Item();
     $item->add($req);
-    $id = getLastInsertId($db);
+    $query = "SELECT id FROM items WHERE token = '$req[token]'";
+    $id = dbQuery($db, $query)->fetchColumn(0);
     return createResponse(1, "Success: item created.", $id);
   }
 
@@ -101,7 +103,7 @@ class ItemsController {
     if (!$res) {
       return createResponse(0, "Error: item not found.", 0);
     }
-    $item = new User();
+    $item = new Item();
     $item->delete($req["id"]);
     return createResponse(1, "Success: item deleted.", $req["id"]);
   }
@@ -178,8 +180,8 @@ class ItemsController {
       $query = "SELECT * FROM items";
       $res = dbQuery($db, $query);
       $items = [];
-      foreach ($res as $item) {
-        $items[] = $item;
+      while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+        $items[] = $row;
       }
       return createGetAllItemsResponse(1, "Success.", $items);
     }

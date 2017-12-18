@@ -12,7 +12,7 @@ function createUsersQueryFromData($data, $id) {
     "location"
   ];
   foreach ($usersColumns as $value) {
-    if (strlen($data[$value])) {
+    if (isset($data[$value])) {
       $query .= "$value = '$data[$value]', ";
     }
   }
@@ -24,6 +24,7 @@ function createAddItemQueryFromData($data) {
   $query = "INSERT INTO items (";
   $date = date("Y-m-d H:i:s");
   $itemsColumns = [
+    "token",
     "user_id",
     "type_id",
     "name",
@@ -58,7 +59,13 @@ function createEditItemQueryFromData($data, $id) {
   ];
   foreach ($itemsColumns as $value) {
     if (isset($data[$value])) {
-      $query .= "$value = '$data[$value]', ";
+      if (!strcmp($value, "available")) {
+        $available = $data[$value] ? "1" : "0";
+        $query .= "$value = $available, ";
+      }
+      else {
+        $query .= "$value = '$data[$value]', ";
+      }
     }
   }
   $query .= "date_modification = '$date' WHERE id = $id";

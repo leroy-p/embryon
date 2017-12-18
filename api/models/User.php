@@ -1,7 +1,8 @@
 <?php
 $root = $_SERVER['DOCUMENT_ROOT'];
-require "$root/embryon/api/functions/dbFunctions.php";
-require "$root/embryon/api/functions/queryFunctions.php";
+require_once "$root/embryon/api/functions/dbFunctions.php";
+require_once "$root/embryon/api/functions/queryFunctions.php";
+require_once "$root/embryon/api/functions/logFunctions.php";
 
 class User {
   public function add($email, $password) {
