@@ -40,7 +40,6 @@ class ItemsController {
     if (isset($req["available"])) {
       $req["status"] = $req["available"] ? 1 : 2;
     }
-    printArray($req);
     $item = new Item();
     $item->add($req);
     $query = "SELECT id FROM items WHERE token = '$req[token]'";

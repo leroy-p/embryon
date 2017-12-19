@@ -235,3 +235,61 @@
                 ...
               ]
     }
+
+### trade
+
+    http://localhost/embryon/api/actions/trade/add
+    POST
+    request :
+    {
+      "user_id": required,
+      "item_id": required,
+      "date_start": required,
+      "date_end": required
+    }
+    response :
+    {
+      "status",
+      "message",
+      "id"
+    }
+
+    http://localhost/embryon/api/actions/trade/reply
+    POST
+    request :
+    {
+      "id": required,
+      "accept": required
+    }
+    response :
+    {
+      "status"
+      "message",
+      "id"
+    }
+
+    http://localhost/embryon/api/actions/trade/start
+    POST
+    request :
+    {
+      "id": required
+    }
+    response :
+    {
+      "status"
+      "message",
+      "id"
+    }
+
+    http://localhost/embryon/api/actions/trade/start
+    POST
+    request :
+    {
+      "id": required
+    }
+    response :
+    {
+      "status"
+      "message",
+      "id"
+    }
