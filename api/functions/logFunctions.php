@@ -53,16 +53,18 @@ function logRequest($url, $data, $method) {
 
 function logResponse($data, $url) {
   foreach ($data as $key => $value) {
-    if (!strcmp($key, "user") || !strcmp($key, "item")) {
+    if (!strcmp($key, "user") || !strcmp($key, "item") || !strcmp($key, "trade")) {
         $data[$key] = arrayToString($value);
     }
-    else if (!strcmp($key, "users") || !strcmp($key, "items")) {
+    else if (!strcmp($key, "users") || !strcmp($key, "items") || !strcmp($key, "trades")) {
       $i = 0;
       while ($i < count($data[$key])) {
         $data[$key][$i] = arrayToString($data[$key][$i]);
         ++$i;
       }
-      $data[$key] = arrayToString($data[$key]);
+      if ($data[$key]) {
+        $data[$key] = arrayToString($data[$key]);
+      }
     }
   }
   $date = date("Y-m-d H:i:s");

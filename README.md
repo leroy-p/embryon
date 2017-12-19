@@ -203,7 +203,40 @@
               }
     }
 
-    http://localhost/embryon/api/actions/item/getAll?user=$id
+    http://localhost/embryon/api/actions/item/getItems?user_id=$user_id
+    GET
+    response :
+    {
+      "status",
+      "message",
+      "items": [      
+                {
+                  "user_id",
+                  "type_id",
+                  "name",
+                  "description",
+                  "pic_url",
+                  "available",
+                  "date_creation",
+                  "date_modification",
+                  "active"
+                },
+                {
+                  "user_id",
+                  "type_id",
+                  "name",
+                  "description",
+                  "pic_url",
+                  "available",
+                  "date_creation",
+                  "date_modification",
+                  "active"
+                },
+                ...
+              ]
+    }
+
+    http://localhost/embryon/api/actions/item/getAll
     GET
     response :
     {
@@ -292,4 +325,99 @@
       "status"
       "message",
       "id"
+    }
+
+    http://localhost/embryon/api/actions/trade/getTrade?id=$id
+    GET
+    response :
+    {
+      "status",
+      "message",
+      "trade": {
+                "id",
+                "user_id",
+                "item_id",
+                "token",
+                "date_creation",
+                "date_modification",
+                "expected_date_start",
+                "expected_date_end",
+                "date_start",
+                "date_end",
+                "status"
+              }
+    }
+
+    http://localhost/embryon/api/actions/trade/getTrades?user_id=$user_id&item_id=$item_id
+    GET
+    response :
+    {
+      "status",
+      "message",
+      "trades": [      
+                {
+                  "id",
+                  "user_id",
+                  "item_id",
+                  "token",
+                  "date_creation",
+                  "date_modification",
+                  "expected_date_start",
+                  "expected_date_end",
+                  "date_start",
+                  "date_end",
+                  "status"
+                },
+                {
+                  "id",
+                  "user_id",
+                  "item_id",
+                  "token",
+                  "date_creation",
+                  "date_modification",
+                  "expected_date_start",
+                  "expected_date_end",
+                  "date_start",
+                  "date_end",
+                  "status"
+                },
+                ...
+              ]
+    }
+
+    http://localhost/embryon/api/actions/trade/getAll
+    GET
+    response :
+    {
+      "status",
+      "message",
+      "trades": [      
+                {
+                  "id",
+                  "user_id",
+                  "item_id",
+                  "token",
+                  "date_creation",
+                  "date_modification",
+                  "expected_date_start",
+                  "expected_date_end",
+                  "date_start",
+                  "date_end",
+                  "status"
+                },
+                {
+                  "id",
+                  "user_id",
+                  "item_id",
+                  "token",
+                  "date_creation",
+                  "date_modification",
+                  "expected_date_start",
+                  "expected_date_end",
+                  "date_start",
+                  "date_end",
+                  "status"
+                },
+                ...
+              ]
     }

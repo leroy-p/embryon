@@ -37,10 +37,10 @@ class TradesController {
     if (!$res) {
       return createResponse($url, 0, "Error: user not found.", 0);
     }
-    $query = "SELECT id FROM items WHERE id = $req[item_id]";
+    $query = "SELECT available FROM items WHERE id = $req[item_id]";
     $res = dbQuery($db, $query)->fetchColumn(0);
     if (!$res) {
-      return createResponse($url, 0, "Error: item not found.", 0);
+      return createResponse($url, 0, "Error: item not found or available.", 0);
     }
     $req["token"] = date("HisYmd") . $req["user_id"] . $req["item_id"];
     $trade = new Trade();
@@ -155,5 +155,165 @@ class TradesController {
     $trade->editDate($req, "date_end");
     return createResponse($url, 1, "Success: trade ended.", $req["id"]);
   }
+
+  /*
+    http://localhost/embryon/api/actions/trade/getTrade?id=$id
+    GET
+    response :
+    {
+      "status",
+      "message",
+      "trade": {
+                "id",
+                "user_id",
+                "item_id",
+                "token",
+                "date_creation",
+                "date_modification",
+                "expected_date_start",
+                "expected_date_end",
+                "date_start",
+                "date_end",
+                "status"
+              }
+    }
+  */
+  public function getTrade($req) {
+    if (!isset($req["id"])) {
+      $url = "http://localhost/embryon/api/actions/item/getTrade?id=";
+      logRequest($url, $req, "GET");
+      return createResponse($url, 0, "Error: id required.", 0);
+    }
+    $url = "http://localhost/embryon/api/actions/item/getTrade?id=$req[id]";
+    logRequest($url, $req, "GET");
+    $db = dbConnect();
+    $query = "SELECT * FROM trades WHERE id = $req[id]";
+    $res = dbQuery($db, $query)->fetch(PDO::FETCH_ASSOC);
+    if (!$res) {
+      return createGetTradeResponse($url, 0, "Error: trade not found.", null);
+    }
+    return createGetTradeResponse($url, 1, "Success.", $res);
+  }
+
+  /*
+    http://localhost/embryon/api/actions/trade/getTrades?user_id=$user_id&item_id=$item_id
+    GET
+    response :
+    {
+      "status",
+      "message",
+      "trades": [
+                {
+                  "id",
+                  "user_id",
+                  "item_id",
+                  "token",
+                  "date_creation",
+                  "date_modification",
+                  "expected_date_start",
+                  "expected_date_end",
+                  "date_start",
+                  "date_end",
+                  "status"
+                },
+                {
+                  "id",
+                  "user_id",
+                  "item_id",
+                  "token",
+                  "date_creation",
+                  "date_modification",
+                  "expected_date_start",
+                  "expected_date_end",
+                  "date_start",
+                  "date_end",
+                  "status"
+                },
+                ...
+              ]
+    }
+  */
+  public function getTrades($data) {
+    $url_user = "";
+    $query_user = "";
+    $url_item = "";
+    $query_item = "";
+    if (isset($data["user_id"])) {
+      $url_user = "?user_id=$data[user_id]";
+      $query_user = " WHERE user_id = $data[user_id]";
+    }
+    if (!isset($data["user_id"]) && isset($data["item_id"])) {
+      $url_item = "?item_id=$data[item_id]";
+      $query_item = " WHERE item_id = $data[item_id]";
+    }
+    if (isset($data["user_id"]) && isset($data["item_id"])) {
+      $url_item = "&item_id=$data[item_id]";
+      $query_item = " AND item_id = $data[item_id]";
+    }
+    $url = "http://localhost/embryon/api/actions/item/getTrades$url_user$url_item";
+    logRequest($url, $data, "GET");
+    $db = dbConnect();
+    $query = "SELECT * FROM trades$query_user$query_item";
+    $res = dbQuery($db, $query);
+    while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+      $trades[] = $row;
+    }
+    if (!isset($trades)) {
+      return createGetAllTradesResponse($url, 0, "Error: trades not found.", null);
+    }
+    return createGetAllTradesResponse($url, 1, "Success.", $trades);
+  }
+
+  /*
+    http://localhost/embryon/api/actions/item/getAll
+    GET
+    response :
+    {
+      "status",
+      "message",
+      "trades": [
+                {
+                  "id",
+                  "user_id",
+                  "item_id",
+                  "token",
+                  "date_creation",
+                  "date_modification",
+                  "expected_date_start",
+                  "expected_date_end",
+                  "date_start",
+                  "date_end",
+                  "status"
+                },
+                {
+                  "id",
+                  "user_id",
+                  "item_id",
+                  "token",
+                  "date_creation",
+                  "date_modification",
+                  "expected_date_start",
+                  "expected_date_end",
+                  "date_start",
+                  "date_end",
+                  "status"
+                },
+                ...
+              ]
+    }
+  */
+  public function getAll() {
+    $url = "http://localhost/embryon/api/actions/trade/getAll";
+    logRequest($url, [], "GET");
+    $db = dbConnect();
+    $query = "SELECT * FROM trades";
+    $res = dbQuery($db, $query);
+    $trades = [];
+    while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+      $trades[] = $row;
+    }
+    return createGetAllTradesResponse($url, 1, "Success.", $trades);
+  }
 }
+
 ?>

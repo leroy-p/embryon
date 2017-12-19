@@ -152,13 +152,69 @@ class ItemsController {
     $query = "SELECT * FROM items WHERE id = $req[id]";
     $res = dbQuery($db, $query)->fetch(PDO::FETCH_ASSOC);
     if (!$res) {
-      return createGetUserResponse($url, 0, "Error: item not found.", null);
+      return createGetItemResponse($url, 0, "Error: item not found.", null);
     }
     return createGetItemResponse($url, 1, "Success.", $res);
   }
 
   /*
-    http://localhost/embryon/api/actions/item/getAll?user=$id
+    http://localhost/embryon/api/actions/item/getItems?user_id=$user_id
+    GET
+    response :
+    {
+      "status",
+      "message",
+      "items": [
+                {
+                  "user_id",
+                  "type_id",
+                  "name",
+                  "description",
+                  "pic_url",
+                  "available",
+                  "date_creation",
+                  "date_modification",
+                  "active"
+                },
+                {
+                  "user_id",
+                  "type_id",
+                  "name",
+                  "description",
+                  "pic_url",
+                  "available",
+                  "date_creation",
+                  "date_modification",
+                  "active"
+                },
+                ...
+              ]
+    }
+  */
+  public function getItems($data) {
+    $url_user = "";
+    $query_user = "";
+    if (isset($data["user_id"])) {
+      $url_user = "?user_id=$data[user_id]";
+      $query_user = " WHERE user_id = $data[user_id]";
+    }
+    $url = "http://localhost/embryon/api/actions/item/getItems$url_user";
+    logRequest($url, $data, "GET");
+    $db = dbConnect();
+    $query = "SELECT * FROM items$query_user";
+    $res = dbQuery($db, $query);
+    $items = [];
+    while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+      $items[] = $row;
+    }
+    if (!isset($items)) {
+      return createGetAllItemsResponse($url, 0, "Error: items not found.", null);
+    }
+    return createGetAllItemsResponse($url, 1, "Success.", $items);
+  }
+
+  /*
+    http://localhost/embryon/api/actions/item/getAll
     GET
     response :
     {

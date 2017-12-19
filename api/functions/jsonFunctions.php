@@ -42,4 +42,20 @@ function createGetAllItemsResponse($url, $status, $message, $items) {
   return json_encode($response);
 }
 
+function createGetTradeResponse($url, $status, $message, $trade) {
+  $response["status"] = $status;
+  $response["message"] = $message;
+  $response["trade"] = $trade;
+  logResponse($response, $url);
+  return json_encode($response);
+}
+
+function createGetAllTradesResponse($url, $status, $message, $trades) {
+  $response["status"] = $status;
+  $response["message"] = $message;
+  $response["trades"] = $trades;
+  logResponse($response, $url);
+  return json_encode($response);
+}
+
 ?>
