@@ -33,7 +33,7 @@ class UsersController {
       }
     }
     $db = dbConnect();
-    $query = "SELECT id FROM users WHERE email = '$req[email]' AND password = '$req[password]'";
+    $query = "SELECT id FROM users WHERE active = 2 AND email = '$req[email]' AND password = '$req[password]'";
     $res = dbQuery($db, $query)->fetchColumn(0);
     if (!$res) {
       return createResponse($url, 0, "Error: incorrect email or password.", 0);
@@ -58,10 +58,6 @@ class UsersController {
     }
   */
   public function add($req) {
-    if (isset($req["password"])) {
-      $req["password"] = md5($req["password"]);
-      $req["confirmation"] = md5($req["confirmation"]);
-    }
     $url = "http://localhost/embryon/api/actions/user/add";
     logRequest($url, $req, "POST");
     $requiredColumns = ["email", "password", "confirmation"];
@@ -70,6 +66,11 @@ class UsersController {
         return createResponse($url, 0, "Error: $value required.", 0);
       }
     }
+    if (!isPassword($req["password"])) {
+      return createResponse($url, 0, "Error: invalid password.", 0);
+    }
+    $req["password"] = md5($req["password"]);
+    $req["confirmation"] = md5($req["confirmation"]);
     if (strcmp($req["password"], $req["confirmation"]) != 0) {
       return createResponse($url, 0, "Error: password and confirmation are different.", 0);
     }
@@ -79,8 +80,9 @@ class UsersController {
     if ($res->fetchColumn(0) == 1) {
       return createResponse($url, 0, "Error: email already taken.", 0);
     }
+    $token = date("HisYmd") . strtoupper(substr($req["email"], 0, 2));
     $user = new User();
-    $user->add($req["email"], $req["password"]);
+    $user->add($token, $req["email"], $req["password"]);
     $query = "SELECT id FROM users WHERE email = '$req[email]'";
     $id = dbQuery($db, $query)->fetchColumn(0);
     return createResponse($url, 1, "Success: user created.", $id);
@@ -151,7 +153,7 @@ class UsersController {
       return createResponse($url, 0, "Error: id required.", 0);
     }
     $db = dbConnect();
-    $query = "SELECT id FROM users WHERE id = $req[id]";
+    $query = "SELECT id FROM users WHERE active > 0 AND id = $req[id]";
     $res = dbQuery($db, $query)->fetchColumn(0);
     if (!$res) {
       return createResponse($url, 0, "Error: user not found.", 0);
@@ -159,6 +161,82 @@ class UsersController {
     $user = new User();
     $user->delete($req["id"]);
     return createResponse($url, 1, "Success: user deleted.", $req["id"]);
+  }
+
+  /*
+    http://localhost/embryon/api/actions/user/confirmEmail
+    POST
+    request :
+    {
+      "token": required
+    }
+    response :
+    {
+      "status",
+      "message",
+      "id"
+    }
+  */
+  public function confirmEmail($req) {
+    $url = "http://localhost/embryon/api/actions/user/confirmEmail";
+    logRequest($url, $req, "POST");
+    if (!isset($req["token"])) {
+      return createResponse($url, 0, "Error: token required.", 0);
+    }
+    $db = dbConnect();
+    $query = "SELECT id FROM users WHERE token = '$req[token]'";
+    $res = dbQuery($db, $query)->fetchColumn(0);
+    if (!$res) {
+      return createResponse($url, 0, "Error: user not found.", 0);
+    }
+    $user = new User();
+    $user->confirmEmail($req["token"]);
+    return createResponse($url, 1, "Success: email confirmed.", $res);
+  }
+
+  /*
+    http://localhost/embryon/api/actions/user/setPassword
+    POST
+    request :
+    {
+      "token": required,
+      "old_password": required,
+      "password": required,
+      "confirmation": required
+    }
+    response :
+    {
+      "status",
+      "message",
+      "id"
+    }
+  */
+  public function editPassword($req) {
+    $url = "http://localhost/embryon/api/actions/user/setPassword";
+    logRequest($url, $req, "POST");
+    $requiredColumns = ["token", "password", "confirmation"];
+    foreach ($requiredColumns as $value) {
+      if (!isset($req[$value])) {
+        return createResponse($url, 0, "Error: $value required.", 0);
+      }
+    }
+    if (!isPassword($req["password"])) {
+      return createResponse($url, 0, "Error: invalid password.", 0);
+    }
+    $req["password"] = md5($req["password"]);
+    $req["confirmation"] = md5($req["confirmation"]);
+    if (strcmp($req["password"], $req["confirmation"]) != 0) {
+      return createResponse($url, 0, "Error: password and confirmation are different.", 0);
+    }
+    $db = dbConnect();
+    $query = "SELECT id FROM users WHERE token = '$req[token]'";
+    $res = dbQuery($db, $query)->fetchColumn(0);
+    if (!$res) {
+      return createResponse($url, 0, "Error: user not found.", 0);
+    }
+    $user = new User();
+    $user->editPassword($req["token"], $req["password"]);
+    return createResponse($url, 1, "Success: password updated.", $res);
   }
 
   /*
@@ -195,7 +273,7 @@ class UsersController {
     $url = "http://localhost/embryon/api/actions/user/getUser?id=$req[id]";
     logRequest($url, $req, "GET");
     $db = dbConnect();
-    $query = "SELECT * FROM users WHERE id = $req[id]";
+    $query = "SELECT * FROM users WHERE active = 2 AND id = $req[id]";
     $res = dbQuery($db, $query)->fetch(PDO::FETCH_ASSOC);
     if (!$res) {
       return createGetUserResponse($url, 0, "Error: user not found.", null);
@@ -251,7 +329,7 @@ class UsersController {
     $url = "http://localhost/embryon/api/actions/user/getAll";
     logRequest($url, [], "GET");
     $db = dbConnect();
-    $query = "SELECT * FROM users";
+    $query = "SELECT * FROM users WHERE active = 2";
     $res = dbQuery($db, $query);
     $users = [];
     while ($row = $res->fetch(PDO::FETCH_ASSOC)) {

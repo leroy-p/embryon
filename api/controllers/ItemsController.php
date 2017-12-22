@@ -31,9 +31,9 @@ class ItemsController {
       return createResponse($url, 0, "Error: name required.", 0);
     }
     $db = dbConnect();
-    $query = "SELECT id FROM users WHERE id = $req[user_id]";
+    $query = "SELECT active FROM users WHERE id = $req[user_id]";
     $res = dbQuery($db, $query)->fetchColumn(0);
-    if (!$res) {
+    if (!$res || $res == 1) {
       return createResponse($url, 0, "Error: user not found.", 0);
     }
     $req["token"] = date("HisYmd") . $req["user_id"];
@@ -110,7 +110,7 @@ class ItemsController {
       return createResponse($url, 0, "Error: id required.", 0);
     }
     $db = dbConnect();
-    $query = "SELECT id FROM items WHERE id = $req[id]";
+    $query = "SELECT id FROM items WHERE active = 1 AND id = $req[id]";
     $res = dbQuery($db, $query)->fetchColumn(0);
     if (!$res) {
       return createResponse($url, 0, "Error: item not found.", 0);
@@ -149,7 +149,7 @@ class ItemsController {
     $url = "http://localhost/embryon/api/actions/item/getItem?id=$req[id]";
     logRequest($url, $req, "GET");
     $db = dbConnect();
-    $query = "SELECT * FROM items WHERE id = $req[id]";
+    $query = "SELECT * FROM items WHERE id = $req[id] AND active = 1";
     $res = dbQuery($db, $query)->fetch(PDO::FETCH_ASSOC);
     if (!$res) {
       return createGetItemResponse($url, 0, "Error: item not found.", null);
@@ -196,12 +196,12 @@ class ItemsController {
     $query_user = "";
     if (isset($data["user_id"])) {
       $url_user = "?user_id=$data[user_id]";
-      $query_user = " WHERE user_id = $data[user_id]";
+      $query_user = " AND user_id = $data[user_id]";
     }
     $url = "http://localhost/embryon/api/actions/item/getItems$url_user";
     logRequest($url, $data, "GET");
     $db = dbConnect();
-    $query = "SELECT * FROM items$query_user";
+    $query = "SELECT * FROM items WHERE active = 1$query_user";
     $res = dbQuery($db, $query);
     $items = [];
     while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
@@ -251,7 +251,7 @@ class ItemsController {
       $url = "http://localhost/embryon/api/actions/item/getAll";
       logRequest($url, [], "GET");
       $db = dbConnect();
-      $query = "SELECT * FROM items";
+      $query = "SELECT * FROM items WHERE active = 1";
       $res = dbQuery($db, $query);
       $items = [];
       while ($row = $res->fetch(PDO::FETCH_ASSOC)) {

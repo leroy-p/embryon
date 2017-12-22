@@ -32,9 +32,9 @@ class TradesController {
       }
     }
     $db = dbConnect();
-    $query = "SELECT id FROM users WHERE id = $req[user_id]";
+    $query = "SELECT active FROM users WHERE id = $req[user_id]";
     $res = dbQuery($db, $query)->fetchColumn(0);
-    if (!$res) {
+    if (!$res || $res == 1) {
       return createResponse($url, 0, "Error: user not found.", 0);
     }
     $query = "SELECT available FROM items WHERE id = $req[item_id]";
@@ -75,7 +75,7 @@ class TradesController {
       }
     }
     $db = dbConnect();
-    $query = "SELECT item_id FROM trades WHERE id = $req[id]";
+    $query = "SELECT item_id FROM trades WHERE id = $req[id] AND status = 1";
     $res = dbQuery($db, $query)->fetchColumn(0);
     if (!$res) {
       return createResponse($url, 0, "Error: trade not found.", 0);
@@ -109,7 +109,7 @@ class TradesController {
       return createResponse($url, 0, "Error: id required.", 0);
     }
     $db = dbConnect();
-    $query = "SELECT item_id FROM trades WHERE id = $req[id]";
+    $query = "SELECT item_id FROM trades WHERE id = $req[id] AND status = 2";
     $res = dbQuery($db, $query)->fetchColumn(0);
     if (!$res) {
       return createResponse($url, 0, "Error: trade not found.", 0);
@@ -143,7 +143,7 @@ class TradesController {
       return createResponse($url, 0, "Error: id required.", 0);
     }
     $db = dbConnect();
-    $query = "SELECT item_id FROM trades WHERE id = $req[id]";
+    $query = "SELECT item_id FROM trades WHERE id = $req[id] AND status = 4";
     $res = dbQuery($db, $query)->fetchColumn(0);
     if (!$res) {
       return createResponse($url, 0, "Error: trade not found.", 0);
@@ -234,26 +234,10 @@ class TradesController {
     }
   */
   public function getTrades($data) {
-    $url_user = "";
-    $query_user = "";
-    $url_item = "";
-    $query_item = "";
-    if (isset($data["user_id"])) {
-      $url_user = "?user_id=$data[user_id]";
-      $query_user = " WHERE user_id = $data[user_id]";
-    }
-    if (!isset($data["user_id"]) && isset($data["item_id"])) {
-      $url_item = "?item_id=$data[item_id]";
-      $query_item = " WHERE item_id = $data[item_id]";
-    }
-    if (isset($data["user_id"]) && isset($data["item_id"])) {
-      $url_item = "&item_id=$data[item_id]";
-      $query_item = " AND item_id = $data[item_id]";
-    }
-    $url = "http://localhost/embryon/api/actions/item/getTrades$url_user$url_item";
+    $url = createGetUrl("http://localhost/embryon/api/actions/item/getTrades", $data);
     logRequest($url, $data, "GET");
     $db = dbConnect();
-    $query = "SELECT * FROM trades$query_user$query_item";
+    $query = createGetTradesQuery($data);
     $res = dbQuery($db, $query);
     while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
       $trades[] = $row;

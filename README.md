@@ -66,6 +66,35 @@
       "id"
     }
 
+    http://localhost/embryon/api/actions/user/confirmEmail
+    POST
+    request :
+    {
+      "token": required
+    }
+    response :
+    {
+      "status",
+      "message",
+      "id"
+    }
+
+    http://localhost/embryon/api/actions/user/setPassword
+    POST
+    request :
+    {
+      "token": required,
+      "old_password": required,
+      "password": required,
+      "confirmation": required
+    }
+    response :
+    {
+      "status",
+      "message",
+      "id"
+    }
+
     http://localhost/embryon/api/actions/user/getUser?id=$id
     GET
     response :

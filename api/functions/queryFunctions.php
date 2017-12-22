@@ -83,4 +83,23 @@ function createEditItemQueryFromData($data, $id) {
   return $query;
 }
 
- ?>
+function createGetTradesQuery($data) {
+  $count = 0;
+  $query = "SELECT trades.id, trades.user_id, trades.item_id, trades.token, trades.date_creation, trades.date_modification,
+            trades.expected_date_start, trades.expected_date_end, trades.date_start, trades.date_end, trades.status FROM trades";
+  if (isset($data["owner_id"])) {
+    $query .= " LEFT JOIN items ON trades.item_id = items.id";
+  }
+  foreach ($data as $key => $value) {
+    $query .= $count ? " AND " : " WHERE ";
+    ++$count;
+    if (strcmp($key, "owner_id")) {
+      $query .= "trades.$key = $value";
+    }
+    else {
+      $query .= "items.user_id = $value";
+    }
+  }
+  return $query;
+}
+?>

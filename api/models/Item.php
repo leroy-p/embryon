@@ -19,7 +19,7 @@
 
     public function delete($id) {
       $db = dbConnect();
-      $query = "UPDATE items SET active = 0 WHERE id = $id";
+      $query = "UPDATE items SET active = 0, available = 0 WHERE id = $id";
       $res = dbQuery($db, $query);
     }
   }
