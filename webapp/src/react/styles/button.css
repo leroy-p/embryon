@@ -1,0 +1,13 @@
+.button-component {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 15vmax;
+  height: 3vmax;
+  background-color: #660020;
+  color: white;
+  font-size: 2vh;
+  border-radius: 1.5vmax;
+  margin-bottom: 2vh;
+}

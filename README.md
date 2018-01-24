@@ -84,7 +84,6 @@
     request :
     {
       "token": required,
-      "old_password": required,
       "password": required,
       "confirmation": required
     }

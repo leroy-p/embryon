@@ -1,0 +1,19 @@
+.form-component {
+  width: 14.4vmax;
+  color: #660020;
+  font-size: 2vh;
+  text-align: center;
+}
+
+.input-container {
+  width: 100%;
+}
+
+.form-component-input {
+  width: 100%;
+  height: 2.5vmax;
+  border-radius: 1.5vmax;
+  border: solid 1px #660020;
+  margin-bottom: 2vmax;
+  font-size: 2vh;
+}

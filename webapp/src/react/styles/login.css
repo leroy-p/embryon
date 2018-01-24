@@ -1,0 +1,25 @@
+.login {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.login-box {
+  padding: 3vmax;
+  border-radius: 2vmax;
+  border: solid 2px #660020;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 15vh;
+}
+
+.forgotten-link {
+  color: #660020;
+  text-decoration: underline;
+  font-size: 2.7vmin;
+  text-align: center;
+}
