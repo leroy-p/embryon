@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
-import '../../styles/forgotten-password.css';
+import React, { Component } from "react";
+import "../../styles/forgotten-password.css";
 
-import Title from '../Title';
-import Form from '../Form';
-import Button from '../Button';
+import Title from "../Title";
+import Form from "../Form";
+import Button from "../Button";
 
 class ForgottenPasswordActivity extends Component {
   render() {

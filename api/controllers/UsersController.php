@@ -29,16 +29,19 @@ class UsersController {
     $requiredColumns = ["email", "password"];
     foreach ($requiredColumns as $value) {
       if (!isset($req[$value])) {
-        return createResponse($url, 0, "Error: $value required.", 0);
+        return createResponse($url, -1, mb_convert_case($value, MB_CASE_TITLE, "UTF-8") . " required.", 0);
+      }
+      if (!$req[$value]) {
+        return createResponse($url, -1, mb_convert_case($value, MB_CASE_TITLE, "UTF-8") . " required.", 0);
       }
     }
     $db = dbConnect();
     $query = "SELECT id FROM users WHERE active = 2 AND email = '$req[email]' AND password = '$req[password]'";
     $res = dbQuery($db, $query)->fetchColumn(0);
     if (!$res) {
-      return createResponse($url, 0, "Error: incorrect email or password.", 0);
+      return createResponse($url, 0, "Incorrect email or password.", 0);
     }
-    return createResponse($url, 1, "Success: user logged in.", $res);
+    return createResponse($url, 1, "User logged in.", $res);
   }
 
   /*
@@ -63,29 +66,35 @@ class UsersController {
     $requiredColumns = ["email", "password", "confirmation"];
     foreach ($requiredColumns as $value) {
       if (!isset($req[$value])) {
-        return createResponse($url, 0, "Error: $value required.", 0);
+        return createResponse($url, -1, mb_convert_case($value, MB_CASE_TITLE, "UTF-8") . " required.", 0);
+      }
+      if (!$req[$value]) {
+        return createResponse($url, -1, mb_convert_case($value, MB_CASE_TITLE, "UTF-8") . " required.", 0);
       }
     }
+    if (!isEmail($req["email"])) {
+      return createResponse($url, 0, "Invalid email.", 0);
+    }
     if (!isPassword($req["password"])) {
-      return createResponse($url, 0, "Error: invalid password.", 0);
+      return createResponse($url, 0, "Invalid password.", 0);
     }
     $req["password"] = md5($req["password"]);
     $req["confirmation"] = md5($req["confirmation"]);
     if (strcmp($req["password"], $req["confirmation"]) != 0) {
-      return createResponse($url, 0, "Error: password and confirmation are different.", 0);
+      return createResponse($url, 0, "Password and confirmation are different.", 0);
     }
     $db = dbConnect();
     $query = "SELECT COUNT(*) FROM users WHERE email = '$req[email]'";
     $res = dbQuery($db, $query);
     if ($res->fetchColumn(0) == 1) {
-      return createResponse($url, 0, "Error: email already taken.", 0);
+      return createResponse($url, 0, "Email already taken.", 0);
     }
     $token = date("HisYmd") . strtoupper(substr($req["email"], 0, 2));
     $user = new User();
     $user->add($token, $req["email"], $req["password"]);
     $query = "SELECT id FROM users WHERE email = '$req[email]'";
     $id = dbQuery($db, $query)->fetchColumn(0);
-    return createResponse($url, 1, "Success: user created.", $id);
+    return createResponse($url, 1, "User created.", $id);
   }
 
   /*
@@ -113,23 +122,26 @@ class UsersController {
     $url = "http://localhost/embryon/api/actions/user/edit";
     logRequest($url, $req, "POST");
     if (!isset($req["id"])) {
-      return createResponse($url, 0, "Error: id required.", 0);
+      return createResponse($url, -1, "Id required.", 0);
+    }
+    if (!$req["id"]) {
+      return createResponse($url, -1, "Id required.", 0);
     }
     $db = dbConnect();
     $query = "SELECT id FROM users WHERE id = $req[id]";
     $res = dbQuery($db, $query)->fetchColumn(0);
     if (!$res) {
-      return createResponse($url, 0, "Error: user not found.", 0);
+      return createResponse($url, 0, "User not found.", 0);
     }
     if (isset($req["phone"]) && strlen($req["phone"]) > 0 && !isPhoneNumber($req["phone"])) {
-      return createResponse($url, 0, "Error: invalid phone number.", 0);
+      return createResponse($url, 0, "Invalid phone number.", 0);
     }
     if (isset($req["pic_url"]) && strlen($req["pic_url"]) > 0 && !isImg($req["pic_url"])) {
-      return createResponse($url, 0, "Error: invalid image format.", 0);
+      return createResponse($url, 0, "Invalid image format.", 0);
     }
     $user = new User();
     $user->edit($req);
-    return createResponse($url, 1, "Success: user updated.", $req["id"]);
+    return createResponse($url, 1, "User updated.", $req["id"]);
   }
 
   /*
@@ -150,17 +162,20 @@ class UsersController {
     $url = "http://localhost/embryon/api/actions/user/delete";
     logRequest($url, $req, "POST");
     if (!isset($req["id"])) {
-      return createResponse($url, 0, "Error: id required.", 0);
+      return createResponse($url, -1, "Id required.", 0);
+    }
+    if (!$req["id"]) {
+      return createResponse($url, -1, "Id required.", 0);
     }
     $db = dbConnect();
     $query = "SELECT id FROM users WHERE active > 0 AND id = $req[id]";
     $res = dbQuery($db, $query)->fetchColumn(0);
     if (!$res) {
-      return createResponse($url, 0, "Error: user not found.", 0);
+      return createResponse($url, 0, "User not found.", 0);
     }
     $user = new User();
     $user->delete($req["id"]);
-    return createResponse($url, 1, "Success: user deleted.", $req["id"]);
+    return createResponse($url, 1, "User deleted.", $req["id"]);
   }
 
   /*
@@ -181,17 +196,20 @@ class UsersController {
     $url = "http://localhost/embryon/api/actions/user/confirmEmail";
     logRequest($url, $req, "POST");
     if (!isset($req["token"])) {
-      return createResponse($url, 0, "Error: token required.", 0);
+      return createResponse($url, -1, "Token required.", 0);
+    }
+    if (!$req["token"]) {
+      return createResponse($url, -1, "Token required.", 0);
     }
     $db = dbConnect();
     $query = "SELECT id FROM users WHERE token = '$req[token]'";
     $res = dbQuery($db, $query)->fetchColumn(0);
     if (!$res) {
-      return createResponse($url, 0, "Error: user not found.", 0);
+      return createResponse($url, 0, "User not found.", 0);
     }
     $user = new User();
     $user->confirmEmail($req["token"]);
-    return createResponse($url, 1, "Success: email confirmed.", $res);
+    return createResponse($url, 1, "Email confirmed.", $res);
   }
 
   /*
@@ -217,26 +235,29 @@ class UsersController {
     $requiredColumns = ["token", "password", "confirmation"];
     foreach ($requiredColumns as $value) {
       if (!isset($req[$value])) {
-        return createResponse($url, 0, "Error: $value required.", 0);
+        return createResponse($url, -1, mb_convert_case($value, MB_CASE_TITLE, "UTF-8") . " required.", 0);
+        if (!$req[$value]) {
+          return createResponse($url, -1, mb_convert_case($value, MB_CASE_TITLE, "UTF-8") . " required.", 0);
+        }
       }
     }
     if (!isPassword($req["password"])) {
-      return createResponse($url, 0, "Error: invalid password.", 0);
+      return createResponse($url, 0, "Invalid password.", 0);
     }
     $req["password"] = md5($req["password"]);
     $req["confirmation"] = md5($req["confirmation"]);
     if (strcmp($req["password"], $req["confirmation"]) != 0) {
-      return createResponse($url, 0, "Error: password and confirmation are different.", 0);
+      return createResponse($url, 0, "Password and confirmation are different.", 0);
     }
     $db = dbConnect();
     $query = "SELECT id FROM users WHERE token = '$req[token]'";
     $res = dbQuery($db, $query)->fetchColumn(0);
     if (!$res) {
-      return createResponse($url, 0, "Error: user not found.", 0);
+      return createResponse($url, 0, "User not found.", 0);
     }
     $user = new User();
     $user->editPassword($req["token"], $req["password"]);
-    return createResponse($url, 1, "Success: password updated.", $res);
+    return createResponse($url, 1, "Password updated.", $res);
   }
 
   /*
@@ -268,15 +289,18 @@ class UsersController {
     if (!isset($req["id"])) {
       $url = "http://localhost/embryon/api/actions/user/getUser?id=";
       logRequest($url, $req, "GET");
-      return createResponse($url, 0, "Error: id required.", 0);
+      return createResponse($url, -1, "Id required.", 0);
     }
     $url = "http://localhost/embryon/api/actions/user/getUser?id=$req[id]";
     logRequest($url, $req, "GET");
+    if (!$req["id"]) {
+      return createResponse($url, -1, "Id required.", 0);
+    }
     $db = dbConnect();
     $query = "SELECT * FROM users WHERE active = 2 AND id = $req[id]";
     $res = dbQuery($db, $query)->fetch(PDO::FETCH_ASSOC);
     if (!$res) {
-      return createGetUserResponse($url, 0, "Error: user not found.", null);
+      return createGetUserResponse($url, 0, "User not found.", null);
     }
     return createGetUserResponse($url, 1, "Success.", $res);
   }

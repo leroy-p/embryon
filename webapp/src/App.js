@@ -14,7 +14,7 @@ class App extends Component {
   render() {
     return (
       <Router>
-        <div>
+        <div style={{height: "100%"}}>
           <Route exact path="/" component={HomeActivity} />
           <Route path="/login" component={LoginActivity} />
           <Route path="/signup" component={SignupActivity} />

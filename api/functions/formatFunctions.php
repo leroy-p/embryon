@@ -20,6 +20,10 @@ function isImg($str) {
   return false;
 }
 
+function isEmail($str) {
+  return true;
+}
+
 function isPassword($str) {
   return preg_match('#^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])#', $str);
 }
@@ -33,4 +37,4 @@ function createGetUrl($url, $req) {
   }
   return $url;
 }
-1?>
+?>

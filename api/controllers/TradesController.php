@@ -28,26 +28,29 @@ class TradesController {
     $requiredColumns = ["user_id", "item_id", "date_start", "date_end"];
     foreach ($requiredColumns as $value) {
       if (!isset($req[$value])) {
-        return createResponse($url, 0, "Error: $value required.", 0);
+        return createResponse($url, 0, mb_convert_case($value, MB_CASE_TITLE, "UTF-8") . " required.", -1);
+      }
+      if (!$req[$value]) {
+        return createResponse($url, 0, mb_convert_case($value, MB_CASE_TITLE, "UTF-8") . " required.", -1);
       }
     }
     $db = dbConnect();
     $query = "SELECT active FROM users WHERE id = $req[user_id]";
     $res = dbQuery($db, $query)->fetchColumn(0);
     if (!$res || $res == 1) {
-      return createResponse($url, 0, "Error: user not found.", 0);
+      return createResponse($url, 0, "User not found.", 0);
     }
     $query = "SELECT available FROM items WHERE id = $req[item_id]";
     $res = dbQuery($db, $query)->fetchColumn(0);
     if (!$res) {
-      return createResponse($url, 0, "Error: item not found or available.", 0);
+      return createResponse($url, 0, "Item not found or available.", 0);
     }
     $req["token"] = date("HisYmd") . $req["user_id"] . $req["item_id"];
     $trade = new Trade();
     $trade->add($req);
     $query = "SELECT id FROM trades WHERE token = '$req[token]'";
     $id = dbQuery($db, $query)->fetchColumn(0);
-    return createResponse($url, 1, "Success: trade created.", $id);
+    return createResponse($url, 1, "Trade created.", $id);
   }
 
   /*
@@ -71,21 +74,24 @@ class TradesController {
     $requiredColumns = ["id", "accept"];
     foreach ($requiredColumns as $value) {
       if (!isset($req[$value])) {
-        return createResponse($url, 0, "Error: $value required.", 0);
+        return createResponse($url, 0, mb_convert_case($value, MB_CASE_TITLE, "UTF-8") . " required.", -1);
+      }
+      if (!$req[$value]) {
+        return createResponse($url, 0, mb_convert_case($value, MB_CASE_TITLE, "UTF-8") . " required.", -1);
       }
     }
     $db = dbConnect();
     $query = "SELECT item_id FROM trades WHERE id = $req[id] AND status = 1";
     $res = dbQuery($db, $query)->fetchColumn(0);
     if (!$res) {
-      return createResponse($url, 0, "Error: trade not found.", 0);
+      return createResponse($url, 0, "Trade not found.", 0);
     }
     $req["item_id"] = $res;
     $req["status"] = $req["accept"] ? 2 : 3;
     $trade = new Trade();
     $trade->editStatus($req);
     $message = $req["accept"] ? "accepted" : "refused";
-    return createResponse($url, 1, "Success: trade $message.", $req["id"]);
+    return createResponse($url, 1, "Trade $message.", $req["id"]);
   }
 
   /*
@@ -106,20 +112,23 @@ class TradesController {
     $url = "http://localhost/embryon/api/actions/trade/start";
     logRequest($url, $req, "POST");
     if (!isset($req["id"])) {
-      return createResponse($url, 0, "Error: id required.", 0);
+      return createResponse($url, 0, "Id required.", -1);
+    }
+    if (!$req["id"]) {
+      return createResponse($url, 0, "Id required.", -1);
     }
     $db = dbConnect();
     $query = "SELECT item_id FROM trades WHERE id = $req[id] AND status = 2";
     $res = dbQuery($db, $query)->fetchColumn(0);
     if (!$res) {
-      return createResponse($url, 0, "Error: trade not found.", 0);
+      return createResponse($url, 0, "Trade not found.", 0);
     }
     $req["item_id"] = $res;
     $req["date_start"] = date("Y-m-d H:i:s");
     $req["status"] = 4;
     $trade = new Trade();
     $trade->editDate($req, "date_start");
-    return createResponse($url, 1, "Success: trade started.", $req["id"]);
+    return createResponse($url, 1, "Trade started.", $req["id"]);
   }
 
   /*
@@ -140,20 +149,23 @@ class TradesController {
     $url = "http://localhost/embryon/api/actions/trade/end";
     logRequest($url, $req, "POST");
     if (!isset($req["id"])) {
-      return createResponse($url, 0, "Error: id required.", 0);
+      return createResponse($url, 0, "Id required.", -1);
+    }
+    if (!$req["id"]) {
+      return createResponse($url, 0, "Id required.", -1);
     }
     $db = dbConnect();
     $query = "SELECT item_id FROM trades WHERE id = $req[id] AND status = 4";
     $res = dbQuery($db, $query)->fetchColumn(0);
     if (!$res) {
-      return createResponse($url, 0, "Error: trade not found.", 0);
+      return createResponse($url, 0, "Trade not found.", 0);
     }
     $req["item_id"] = $res;
     $req["date_end"] = date("Y-m-d H:i:s");
     $req["status"] = 5;
     $trade = new Trade();
     $trade->editDate($req, "date_end");
-    return createResponse($url, 1, "Success: trade ended.", $req["id"]);
+    return createResponse($url, 1, "Trade ended.", $req["id"]);
   }
 
   /*
@@ -182,7 +194,10 @@ class TradesController {
     if (!isset($req["id"])) {
       $url = "http://localhost/embryon/api/actions/item/getTrade?id=";
       logRequest($url, $req, "GET");
-      return createResponse($url, 0, "Error: id required.", 0);
+      return createResponse($url, 0, "Id required.", -1);
+    }
+    if (!$req["id"]) {
+      return createResponse($url, 0, "Id required.", -1);
     }
     $url = "http://localhost/embryon/api/actions/item/getTrade?id=$req[id]";
     logRequest($url, $req, "GET");
@@ -190,7 +205,7 @@ class TradesController {
     $query = "SELECT * FROM trades WHERE id = $req[id]";
     $res = dbQuery($db, $query)->fetch(PDO::FETCH_ASSOC);
     if (!$res) {
-      return createGetTradeResponse($url, 0, "Error: trade not found.", null);
+      return createGetTradeResponse($url, 0, "Trade not found.", null);
     }
     return createGetTradeResponse($url, 1, "Success.", $res);
   }
@@ -243,7 +258,7 @@ class TradesController {
       $trades[] = $row;
     }
     if (!isset($trades)) {
-      return createGetAllTradesResponse($url, 0, "Error: trades not found.", null);
+      return createGetAllTradesResponse($url, 0, "Trades not found.", null);
     }
     return createGetAllTradesResponse($url, 1, "Success.", $trades);
   }

@@ -27,14 +27,17 @@ class ItemsController {
   public function add($req) {
     $url = "http://localhost/embryon/api/actions/item/add";
     logRequest($url, $req, "POST");
-    if (!isset($req["name"]) || !strlen($req["name"])) {
-      return createResponse($url, 0, "Error: name required.", 0);
+    if (!isset($req["name"])) {
+      return createResponse($url, 0, "Name required.", -1);
+    }
+    if (!$req["name"]) {
+      return createResponse($url, 0, "Name required.", -1);
     }
     $db = dbConnect();
     $query = "SELECT active FROM users WHERE id = $req[user_id]";
     $res = dbQuery($db, $query)->fetchColumn(0);
     if (!$res || $res == 1) {
-      return createResponse($url, 0, "Error: user not found.", 0);
+      return createResponse($url, 0, "User not found.", 0);
     }
     $req["token"] = date("HisYmd") . $req["user_id"];
     if (isset($req["available"])) {
@@ -44,7 +47,7 @@ class ItemsController {
     $item->add($req);
     $query = "SELECT id FROM items WHERE token = '$req[token]'";
     $id = dbQuery($db, $query)->fetchColumn(0);
-    return createResponse($url, 1, "Success: item created.", $id);
+    return createResponse($url, 1, "Item created.", $id);
   }
 
   /*
@@ -70,23 +73,26 @@ class ItemsController {
     $url = "http://localhost/embryon/api/actions/item/edit";
     logRequest($url, $req, "POST");
     if (!isset($req["id"])) {
-      return createResponse($url, 0, "Error: id required.", 0);
+      return createResponse($url, 0, "Id required.", -1);
+    }
+    if (!$req["id"]) {
+      return createResponse($url, 0, "Id required.", -1);
     }
     $db = dbConnect();
     $query = "SELECT id FROM items WHERE id = $req[id]";
     $res = dbQuery($db, $query)->fetchColumn(0);
     if (!$res) {
-      return createResponse($url, 0, "Error: item not found.", 0);
+      return createResponse($url, 0, "Item not found.", 0);
     }
     if (isset($req["pic_url"]) && strlen($req["pic_url"]) > 0 && !isImg($req["pic_url"])) {
-      return createResponse($url, 0, "Error: invalid image format.", 0);
+      return createResponse($url, 0, "Invalid image format.", 0);
     }
     if (isset($req["available"])) {
       $req["status"] = $req["available"] ? 1 : 2;
     }
     $item = new Item();
     $item->edit($req);
-    return createResponse($url, 1, "Success: item updated.", $req["id"]);
+    return createResponse($url, 1, "Item updated.", $req["id"]);
   }
 
   /*
@@ -107,17 +113,20 @@ class ItemsController {
     $url = "http://localhost/embryon/api/actions/item/delete";
     logRequest($url, $req, "POST");
     if (!isset($req["id"])) {
-      return createResponse($url, 0, "Error: id required.", 0);
+      return createResponse($url, 0, "Id required.", -1);
+    }
+    if (!$req["id"]) {
+      return createResponse($url, 0, "Id required.", -1);
     }
     $db = dbConnect();
     $query = "SELECT id FROM items WHERE active = 1 AND id = $req[id]";
     $res = dbQuery($db, $query)->fetchColumn(0);
     if (!$res) {
-      return createResponse($url, 0, "Error: item not found.", 0);
+      return createResponse($url, 0, "Item not found.", 0);
     }
     $item = new Item();
     $item->delete($req["id"]);
-    return createResponse($url, 1, "Success: item deleted.", $req["id"]);
+    return createResponse($url, 1, "Item deleted.", $req["id"]);
   }
 
   /*
@@ -144,7 +153,10 @@ class ItemsController {
     if (!isset($req["id"])) {
       $url = "http://localhost/embryon/api/actions/item/getItem?id=";
       logRequest($url, $req, "GET");
-      return createResponse($url, 0, "Error: id required.", 0);
+      return createResponse($url, 0, "Id required.", -1);
+    }
+    if (!$req["id"]) {
+      return createResponse($url, 0, "Id required.", -1);
     }
     $url = "http://localhost/embryon/api/actions/item/getItem?id=$req[id]";
     logRequest($url, $req, "GET");
@@ -152,7 +164,7 @@ class ItemsController {
     $query = "SELECT * FROM items WHERE id = $req[id] AND active = 1";
     $res = dbQuery($db, $query)->fetch(PDO::FETCH_ASSOC);
     if (!$res) {
-      return createGetItemResponse($url, 0, "Error: item not found.", null);
+      return createGetItemResponse($url, 0, "Item not found.", null);
     }
     return createGetItemResponse($url, 1, "Success.", $res);
   }
@@ -208,7 +220,7 @@ class ItemsController {
       $items[] = $row;
     }
     if (!isset($items)) {
-      return createGetAllItemsResponse($url, 0, "Error: items not found.", null);
+      return createGetAllItemsResponse($url, 0, "Items not found.", null);
     }
     return createGetAllItemsResponse($url, 1, "Success.", $items);
   }
@@ -260,5 +272,4 @@ class ItemsController {
       return createGetAllItemsResponse($url, 1, "Success.", $items);
     }
   }
-
 ?>
