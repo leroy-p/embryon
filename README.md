@@ -34,7 +34,7 @@
     }
 
     http://localhost/embryon/api/actions/user/edit
-    POST
+    PUT
     request :
     {
       "id": required,
@@ -54,7 +54,7 @@
     }
 
     http://localhost/embryon/api/actions/user/delete
-    POST
+    DELETE
     request :
     {
       "id": required
@@ -80,7 +80,7 @@
     }
 
     http://localhost/embryon/api/actions/user/setPassword
-    POST
+    PUT
     request :
     {
       "token": required,
@@ -182,7 +182,7 @@
     }
 
     http://localhost/embryon/api/actions/item/edit
-    POST
+    PUT
     request :
     {
       "id: required,
@@ -200,7 +200,7 @@
     }
 
     http://localhost/embryon/api/actions/item/delete
-    POST
+    DELETE
     request :
     {
       "id: required
@@ -316,7 +316,7 @@
     }
 
     http://localhost/embryon/api/actions/trade/reply
-    POST
+    PUT
     request :
     {
       "id": required,
@@ -330,7 +330,7 @@
     }
 
     http://localhost/embryon/api/actions/trade/start
-    POST
+    PUT
     request :
     {
       "id": required
@@ -343,7 +343,7 @@
     }
 
     http://localhost/embryon/api/actions/trade/start
-    POST
+    PUT
     request :
     {
       "id": required
